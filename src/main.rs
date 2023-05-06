@@ -13,7 +13,7 @@ struct PrefWithNames {
 
 fn parse_input() -> PrefWithNames {
     let stdin = io::stdin();
-    let mut lines = stdin.lock().lines().map(|line| line.unwrap());
+    let lines = stdin.lock().lines().map(|line| line.unwrap());
 
     let mut man_names: HashMap<String, Man> = HashMap::new();
     let mut woman_names: HashMap<String, Woman> = HashMap::new();
@@ -24,7 +24,7 @@ fn parse_input() -> PrefWithNames {
     let mut n = 0;
     let mut i = 0;
 
-    while let Some(line) = lines.next() {
+    for line in lines {
         if line.trim().is_empty() || i> 2*n {
             break;
         }
@@ -65,7 +65,7 @@ fn parse_input() -> PrefWithNames {
 }
 
 fn parse_line(line: &str) -> Option<(&str, Vec<&str>)> {
-    let mut parts = line.split(":");
+    let mut parts = line.split(':');
     let person = parts.next()?.trim();
     let pref_list = parts.next()?.trim();
     let prefs: Vec<&str> = pref_list.split_whitespace().collect();

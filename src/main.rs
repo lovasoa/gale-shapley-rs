@@ -24,7 +24,7 @@ fn parse_input() -> PrefWithNames {
     let mut n = 0;
 
     for (i, line) in lines.enumerate() {
-        if line.trim().is_empty() || i> 2*n {
+        if line.trim().is_empty() || (n > 0 && i >= 2 * n) {
             break;
         }
         let (person, preferences) = parse_line(&line)
@@ -52,8 +52,12 @@ fn parse_input() -> PrefWithNames {
             add_pref_line(&mut women_preferences, preferences, &man_names);
         }
     }
-    
-    assert_eq!(men_preferences.len(), women_preferences.len(), "Expected as many men as women");
+
+    assert_eq!(
+        men_preferences.len(),
+        women_preferences.len(),
+        "Expected as many men as women"
+    );
     PrefWithNames {
         men_preferences,
         women_preferences,
@@ -84,7 +88,7 @@ fn add_pref_line(
 }
 
 fn invert_map(h: HashMap<String, usize>) -> HashMap<usize, String> {
-    h.into_iter().map(|(a,b)|(b,a)).collect()
+    h.into_iter().map(|(a, b)| (b, a)).collect()
 }
 
 fn main() {

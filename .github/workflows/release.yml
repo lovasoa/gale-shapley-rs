@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  push:
+    tags: "v*"
+
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: cargo build --release
+      env: { RUSTFLAGS: -C target-feature=+avx2,+sse2 }
+    - run: mv target/release ${{ matrix.os }}
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ matrix.os }}
+
+permissions:
+  contents: write

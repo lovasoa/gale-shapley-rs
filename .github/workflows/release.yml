@@ -20,11 +20,11 @@ jobs:
     - uses: actions/checkout@v3
     - run: cargo build --release
       env: { RUSTFLAGS: -C target-feature=+avx2,+sse2 }
-    - run: mv target/release ${{ matrix.os }}
+    - run: zip --junk-paths ${{ matrix.os }}.zip target/release/galeshapley*
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ${{ matrix.os }}
+        files: ${{ matrix.os }}.zip
 
 permissions:
   contents: write

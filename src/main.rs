@@ -119,8 +119,8 @@ fn test_parse() {
     assert_eq!(
         p,
         PrefWithNames {
-            men_preferences: vec![vec![0,1], vec![1,0]],
-            women_preferences: vec![vec![0,1], vec![1,0]],
+            men_preferences: vec![vec![0, 1], vec![1, 0]],
+            women_preferences: vec![vec![0, 1], vec![1, 0]],
             men_names: vec!["A".into(), "B".into()],
             women_names: vec!["X".into(), "Y".into()]
         }

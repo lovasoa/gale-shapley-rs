@@ -14,15 +14,43 @@ The algorithm is guaranteed to terminate and find a stable marriage for any inpu
 
 ## Command-line usage
 
+### Solve a problem in textual form
+
+Run the program from the terminal
+
 ```sh
 $ ./galeshapley
+```
+
+Type your problem in the following format: 
+
+```
 Joe: Jane Isabelle
 Jack: Isabelle Jane
 Isabelle: Joe Jack
 Jane: Joe Jack
+```
 
+Then leave a blank line, and wait for the reponse in the form
+
+```
 Joe: Jane
 Jack: Isabelle
+```
+
+### Compute statistics
+
+run
+
+```
+./galeshapley 500
+```
+
+and it will display the results as it computes them
+
+```
+Solving problems with 500 men and 500 women with random preferences.
+Success rate for the first man (got first choice / total samples) :        23/    13040 = 0.176380%
 ```
 
 ## Programmatic usage

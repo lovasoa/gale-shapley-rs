@@ -108,7 +108,8 @@ fn run_random(n: usize) {
     let mut got_first_choice = 0;
     for total_tries in 1.. {
         let mut pb = GaleShapley::init_random(n);
-        got_first_choice += pb.has_stable_mariage_with(0, 0) as usize;
+        let preferred_woman = pb.best_woman_for(0);
+        got_first_choice += pb.has_stable_mariage_with(0, preferred_woman) as usize;
         let rate = 100. * (got_first_choice as f64 / total_tries as f64);
         print!("\rSuccess rate for the first man (got first choice / total samples) : {got_first_choice:>9}/{total_tries:>9} = {rate:.6}%")
     }

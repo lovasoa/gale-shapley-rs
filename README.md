@@ -40,6 +40,8 @@ Jack: Isabelle
 
 ### Compute statistics
 
+Computes the probability ofa man to gets his first choice as a stable mariage in a problem of N men and N women.
+
 run
 
 ```
@@ -49,8 +51,8 @@ run
 and it will display the results as it computes them
 
 ```
-Solving problems with 500 men and 500 women with random preferences.
-Success rate for the first man (got first choice / total samples) :        23/    13040 = 0.176380%
+Solving problems with 3 men and 3 women with random preferences.
+Success rate for the first man (got first choice / total samples) :    849579/  1330450 = 63.856515%
 ```
 
 ## Programmatic usage

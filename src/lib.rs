@@ -43,6 +43,14 @@ impl GaleShapley {
     }
 
     /// Returns the woman that m wants currently wants the most
+    pub fn best_woman_for(&self, m: Man) -> Woman {
+        self.men_preferences[m]
+            .last()
+            .copied()
+            .expect("internal error: man has no more preferences")
+    }
+
+    /// Returns the woman that m wants currently wants the most
     fn take_best_woman_for(&mut self, m: Man) -> Woman {
         self.men_preferences[m]
             .pop()
@@ -219,6 +227,16 @@ mod tests {
         assert!(
             !GaleShapley::init(men_preferences(), women_preferences())
                 .has_stable_mariage_with(1, 1) // second man does not mary second woman
+        );
+    }
+
+    #[test]
+    fn all_stable_marriage_with_2x2() {
+        let men_preferences = || vec![vec![0, 1], vec![0, 1]]; // both men prefer the first woman
+        let women_preferences = || vec![vec![1, 0], vec![1, 0]]; // both women prefer the second man
+        assert!(
+            !GaleShapley::init(men_preferences(), women_preferences())
+                .has_stable_mariage_with(0, 0) // first man does not mary first woman
         );
     }
 }

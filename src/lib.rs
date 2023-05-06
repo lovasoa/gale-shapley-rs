@@ -28,13 +28,25 @@ impl GaleShapley {
         }
     }
 
+    ///Creates a random Gale Shapley instance with n men and women
+    pub fn init_random(n: usize) -> GaleShapley {
+        GaleShapley {
+            free_men: (0..n).rev().collect(),
+            men_preferences: rand_pref_matrix(n),
+            women_preferences: rand_pref_matrix(n),
+            women_engagement: vec![None; n],
+        }
+    }
+
     fn next_free_man(&self) -> Option<Man> {
         self.free_men.last().copied()
     }
 
     /// Returns the woman that m wants currently wants the most
     fn take_best_woman_for(&mut self, m: Man) -> Woman {
-        self.men_preferences[m].pop().expect("internal error: man has no more preferences")
+        self.men_preferences[m]
+            .pop()
+            .expect("internal error: man has no more preferences")
     }
 
     /// Returns the man that w is engaged to
@@ -111,6 +123,13 @@ fn make_women_preferences(mut p: Vec<Vec<Man>>) -> Vec<Vec<usize>> {
     p
 }
 
+fn rand_pref_matrix(n: usize) -> Vec<Vec<usize>> {
+    let mut rng = rand::thread_rng();
+    (0..n)
+        .map(|_| rand::seq::index::sample(&mut rng, n, n).into_vec())
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -152,5 +171,20 @@ mod tests {
             make_women_preferences(vec![vec![0, 2, 1], vec![2, 1, 0], vec![2, 0, 1]]),
             [[0, 2, 1], [2, 1, 0], [1, 2, 0]]
         )
+    }
+
+    #[test]
+    fn test_rand() {
+        let n = 100;
+        let mut men = std::collections::HashSet::new();
+        let mut women = std::collections::HashSet::new();
+        for (m,w) in GaleShapley::init_random(n).find_stable_marriage() {
+            men.insert(m);
+            women.insert(w);
+        }
+        for i in 0..n {
+            assert!(men.contains(&i));
+            assert!(women.contains(&i));
+        }
     }
 }

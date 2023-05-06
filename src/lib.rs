@@ -99,6 +99,20 @@ impl GaleShapley {
             .enumerate()
             .map(|(w, option_m)| (option_m.unwrap(), w))
     }
+
+    /// Whether m and w have a stable marriage in the solution that would be returned by find_stable_marriage
+    /// This is faster than calling find_stable_marriage and checking if the result contains (m, w)
+    pub fn has_stable_mariage_with(&mut self, man: Man, woman: Woman) -> bool {
+        let mut was_engaged = self.women_engagement[woman] == Some(man);
+        while let Some((_m, _w)) = self.next_engagement_round() {
+            if self.women_engagement[woman] == Some(man) {
+                was_engaged = true;
+            } else if was_engaged {
+                return false; // unengaged after being engaged
+            }
+        }
+        was_engaged
+    }
 }
 
 /// men_preferences[m][N-i] is the ith prefered woman of m
@@ -178,7 +192,7 @@ mod tests {
         let n = 100;
         let mut men = std::collections::HashSet::new();
         let mut women = std::collections::HashSet::new();
-        for (m,w) in GaleShapley::init_random(n).find_stable_marriage() {
+        for (m, w) in GaleShapley::init_random(n).find_stable_marriage() {
             men.insert(m);
             women.insert(w);
         }
@@ -186,5 +200,21 @@ mod tests {
             assert!(men.contains(&i));
             assert!(women.contains(&i));
         }
+    }
+
+    #[test]
+    fn test_has_stable_marriage_with_2x2() {
+        let men_preferences = || vec![vec![0, 1], vec![0, 1]]; // both men prefer the first woman
+        let women_preferences = || vec![vec![1, 0], vec![1, 0]]; // both women prefer the second man
+        assert!(!GaleShapley::init(men_preferences(), women_preferences())
+            .has_stable_mariage_with(0, 0)); // first man does not mary first woman
+        assert!(
+            GaleShapley::init(men_preferences(), women_preferences()).has_stable_mariage_with(1, 0)
+        ); // second man maries first woman
+        assert!(
+            GaleShapley::init(men_preferences(), women_preferences()).has_stable_mariage_with(0, 1)
+        ); // first man maries second woman
+        assert!(!GaleShapley::init(men_preferences(), women_preferences())
+            .has_stable_mariage_with(1, 1)); // second man does not mary second woman
     }
 }

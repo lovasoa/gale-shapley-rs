@@ -22,7 +22,7 @@ jobs:
       env: { RUSTFLAGS: -C target-feature=+avx2,+sse2 }
     - run: zip --junk-paths ${{ matrix.os }}.zip target/release/galeshapley*
       if: matrix.os != 'windows-latest'
-    - run: Compress-Archive -Path folder/* -Destination new.zip
+    - run: Compress-Archive -Path target/release/galeshapley* -Destination ${{ matrix.os }}.zip
       if: matrix.os == 'windows-latest'
     - name: Release
       uses: softprops/action-gh-release@v1

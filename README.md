@@ -16,7 +16,20 @@ The GaleShapley struct represents the algorithm itself, and it has several metho
 The `init` method is used to initialize the data structures needed for the algorithm, such as the men and women preferences.
 The `find_stable_marriage` method runs the algorithm and returns the final stable marriage.
 
-### Example usage
+### Example command-line usage
+
+```sh
+$ ./galeshapley
+Joe: Jane Isabelle
+Jack: Isabelle Jane
+Isabelle: Joe Jack
+Jane: Joe Jack
+
+Joe: Jane
+Jack: Isabelle
+```
+
+### Example programmatic usage
 
 ```rs
 let men_preferences = vec![vec![0, 1], vec![0, 1]]; // both men prefer woman 0

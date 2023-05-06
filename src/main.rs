@@ -1,19 +1,19 @@
 use galeshapley::{GaleShapley, Man, Woman};
 
 use std::collections::HashMap;
-use std::io::{self, BufRead};
 
-struct PrefWithNames {
+#[derive(PartialEq, Debug)]
+pub struct PrefWithNames {
     men_preferences: Vec<Vec<Woman>>,
     women_preferences: Vec<Vec<Man>>,
 
-    men_names: HashMap<Man, String>,
-    women_names: HashMap<Woman, String>,
+    men_names: Vec<String>,
+    women_names: Vec<String>,
 }
 
-fn parse_input() -> PrefWithNames {
-    let stdin = io::stdin();
-    let lines = stdin.lock().lines().map(|line| line.unwrap());
+/// Parse a stable mariage problem from a textual representation
+pub fn parse_input<R: std::io::BufRead>(r: R) -> PrefWithNames {
+    let lines = r.lines().map(|line| line.unwrap());
 
     let mut man_names: HashMap<String, Man> = HashMap::new();
     let mut woman_names: HashMap<String, Woman> = HashMap::new();
@@ -24,7 +24,7 @@ fn parse_input() -> PrefWithNames {
     let mut n = 0;
 
     for (i, line) in lines.enumerate() {
-        if line.trim().is_empty() || (n > 0 && i >= 2 * n) {
+        if line.trim().is_empty() || n > 0 && i >= 2 * n {
             break;
         }
         let (person, preferences) = parse_line(&line)
@@ -87,14 +87,42 @@ fn add_pref_line(
     )
 }
 
-fn invert_map(h: HashMap<String, usize>) -> HashMap<usize, String> {
-    h.into_iter().map(|(a, b)| (b, a)).collect()
+fn invert_map(h: HashMap<String, usize>) -> Vec<String> {
+    let mut names = vec!["".into(); h.len()];
+    for (name, index) in h {
+        names[index] = name;
+    }
+    names
 }
 
 fn main() {
-    let p = parse_input();
+    let p = parse_input(std::io::stdin().lock());
     let mut algo: GaleShapley = GaleShapley::init(p.men_preferences, p.women_preferences);
     for (man, woman) in algo.find_stable_marriage() {
-        println!("{}: {}", p.men_names[&man], p.women_names[&woman]);
+        println!("{}: {}", p.men_names[man], p.women_names[woman]);
     }
+}
+
+#[test]
+#[should_panic]
+fn test_input_parsing() {
+    parse_input(&b"nawak"[..]);
+}
+
+#[test]
+fn test_parse() {
+    let input = b"A: X Y \n\
+                            B: Y X \n\
+                            X: A B \n\
+                            Y: B A";
+    let p = parse_input(&input[..]);
+    assert_eq!(
+        p,
+        PrefWithNames {
+            men_preferences: vec![vec![0,1], vec![1,0]],
+            women_preferences: vec![vec![0,1], vec![1,0]],
+            men_names: vec!["A".into(), "B".into()],
+            women_names: vec!["X".into(), "Y".into()]
+        }
+    );
 }

@@ -95,11 +95,32 @@ fn invert_map(h: HashMap<String, usize>) -> Vec<String> {
     names
 }
 
-fn main() {
+fn run_from_parsed_stdin_problem() {
     let p = parse_input(std::io::stdin().lock());
     let mut algo: GaleShapley = GaleShapley::init(p.men_preferences, p.women_preferences);
     for (man, woman) in algo.find_stable_marriage() {
         println!("{}: {}", p.men_names[man], p.women_names[woman]);
+    }
+}
+
+fn run_random(n: usize) {
+    println!("Solving problems with {n} men and {n} women with random preferences.");
+    let mut got_first_choice = 0;
+    for total_tries in 1.. {
+        let mut pb = GaleShapley::init_random(n);
+        got_first_choice += pb.has_stable_mariage_with(0, 0) as usize;
+        let rate = 100. * (got_first_choice as f64 / total_tries as f64);
+        print!("\rSuccess rate for the first man (got first choice / total samples) : {got_first_choice:>9}/{total_tries:>9} = {rate:.6}%")
+    }
+}
+
+fn main() {
+    let argv: Vec<String> = std::env::args().collect();
+    if argv.len() == 2 {
+        let n: usize = argv[1].parse().expect("invalid number");
+        run_random(n)
+    } else {
+        run_from_parsed_stdin_problem()
     }
 }
 

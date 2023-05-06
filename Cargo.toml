@@ -4,6 +4,7 @@ version = "0.0.2"
 edition = "2021"
 description = "Stable mariage problem solving, with fine-grained user control and early stopping ability"
 license = "Unlicense"
+repository = "https://github.com/lovasoa/gale-shapley-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

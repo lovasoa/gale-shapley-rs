@@ -34,7 +34,7 @@ impl GaleShapley {
 
     /// Returns the woman that m wants currently wants the most
     fn take_best_woman_for(&mut self, m: Man) -> Woman {
-        self.men_preferences[m].pop().unwrap()
+        self.men_preferences[m].pop().expect("internal error: man has no more preferences")
     }
 
     /// Returns the man that w is engaged to
@@ -51,7 +51,8 @@ impl GaleShapley {
     /// marks m and w as engaged
     fn engage(&mut self, m: Man, w: Woman) {
         self.women_engagement[w] = Some(m);
-        debug_assert_eq!(self.free_men.pop(), Some(m));
+        let popped = self.free_men.pop();
+        debug_assert_eq!(popped, Some(m));
     }
 
     /// removes the engagement between m and the woman he was engaged to
@@ -78,7 +79,9 @@ impl GaleShapley {
 
     /// Returns the final stable marriage
     pub fn find_stable_marriage(&mut self) -> impl Iterator<Item = (Man, Woman)> + '_ {
-        while let Some((_m, _w)) = self.next_engagement_round() {}
+        while let Some((_m, _w)) = self.next_engagement_round() {
+            // println!("{_m} proposes to {_w}. Engagements: {:?}. Free men: {:?}", self.women_engagement, self.free_men)
+        }
         self.women_engagement
             .iter()
             .enumerate()

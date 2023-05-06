@@ -11,12 +11,8 @@ If the woman is already engaged to another man, she compares her current partner
 
 The algorithm is guaranteed to terminate and find a stable marriage for any input, and the output is also guaranteed to be unique.
 
-## Implementation
-The GaleShapley struct represents the algorithm itself, and it has several methods that implement the different steps of the algorithm.
-The `init` method is used to initialize the data structures needed for the algorithm, such as the men and women preferences.
-The `find_stable_marriage` method runs the algorithm and returns the final stable marriage.
 
-### Example command-line usage
+## Command-line usage
 
 ```sh
 $ ./galeshapley
@@ -29,7 +25,14 @@ Joe: Jane
 Jack: Isabelle
 ```
 
-### Example programmatic usage
+## Programmatic usage
+
+### Implementation
+The GaleShapley struct represents the algorithm itself, and it has several methods that implement the different steps of the algorithm.
+The `init` method is used to initialize the data structures needed for the algorithm, such as the men and women preferences.
+The `find_stable_marriage` method runs the algorithm and returns the final stable marriage.
+
+### Example
 
 ```rs
 let men_preferences = vec![vec![0, 1], vec![0, 1]]; // both men prefer woman 0

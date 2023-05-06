@@ -22,9 +22,8 @@ fn parse_input() -> PrefWithNames {
     let mut women_preferences: Vec<Vec<Man>> = vec![];
 
     let mut n = 0;
-    let mut i = 0;
 
-    for line in lines {
+    for (i, line) in lines.enumerate() {
         if line.trim().is_empty() || i> 2*n {
             break;
         }
@@ -52,9 +51,8 @@ fn parse_input() -> PrefWithNames {
         } else {
             add_pref_line(&mut women_preferences, preferences, &man_names);
         }
-
-        i += 1
     }
+    
     assert_eq!(men_preferences.len(), women_preferences.len(), "Expected as many men as women");
     PrefWithNames {
         men_preferences,

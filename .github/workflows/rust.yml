@@ -31,3 +31,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: target/release
+
+permissions:
+  contents: write

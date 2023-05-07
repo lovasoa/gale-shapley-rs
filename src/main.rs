@@ -111,10 +111,10 @@ fn run_random(n: usize) {
         let mut pb = GaleShapley::init_random(n);
         let preferred_woman = pb.best_woman_for(0);
         got_first_choice += pb.has_stable_mariage_with(0, preferred_woman) as usize;
-        let rate = 100. * (got_first_choice as f64 / total_tries as f64);
-        let confidence =
-            100. * 1.96 * (rate / 100. * (1. - rate / 100.) / total_tries as f64).sqrt();
-        print!("\r{got_first_choice:>9}/{total_tries:>9} = {rate:>8.4} ± {confidence:>4.1} %")
+        let rate = got_first_choice as f64 / total_tries as f64;
+        let confidence = 100. * 1.96 * (rate * (1. - rate) / total_tries as f64).sqrt();
+        let percentage = 100. * rate;
+        print!("\r{got_first_choice:^9}/{total_tries:^9} = {percentage:^6.2} ± {confidence:^4.1} %\r")
     }
 }
 

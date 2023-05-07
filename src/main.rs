@@ -105,13 +105,16 @@ fn run_from_parsed_stdin_problem() {
 
 fn run_random(n: usize) {
     println!("Solving problems with {n} men and {n} women with random preferences.");
+    println!("Success rate for the first man (got first choice / total samples) and 95% confidence interval :");
     let mut got_first_choice = 0;
     for total_tries in 1.. {
         let mut pb = GaleShapley::init_random(n);
         let preferred_woman = pb.best_woman_for(0);
         got_first_choice += pb.has_stable_mariage_with(0, preferred_woman) as usize;
         let rate = 100. * (got_first_choice as f64 / total_tries as f64);
-        print!("\rSuccess rate for the first man (got first choice / total samples) : {got_first_choice:>9}/{total_tries:>9} = {rate:.6}%")
+        let confidence =
+            100. * 1.96 * (rate / 100. * (1. - rate / 100.) / total_tries as f64).sqrt();
+        print!("\r{got_first_choice:>9}/{total_tries:>9} = {rate:>8.4} ± {confidence:>4.1} %")
     }
 }
 

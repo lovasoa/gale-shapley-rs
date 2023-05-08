@@ -64,6 +64,11 @@ The [`GaleShapley` struct](https://github.com/lovasoa/gale-shapley-rs/blob/main/
 The `init` method is used to initialize the data structures needed for the algorithm, such as the men and women preferences.
 The `find_stable_marriage` method runs the algorithm and returns the final stable marriage.
 
+The implementation lets the user drive the algorithm on their own and can return to user code after each proposal round.
+
+It also provides a [`has_stable_mariage_with(m: Man, w: Woman)`](https://github.com/lovasoa/gale-shapley-rs/blob/main/src/lib.rs#L113) method,
+that allows computing whether a given mariage is in the solution faster than if we were to compute the entire solution and then extract that information from it.
+
 ### Example
 
 ```rs

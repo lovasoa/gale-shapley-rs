@@ -40,7 +40,7 @@ Jack: Isabelle
 
 ### Compute statistics
 
-Computes the probability ofa man to gets his first choice as a stable mariage in a problem of N men and N women.
+Computes the probability of a man to gets his first choice as a stable mariage in a problem of N men and N women.
 
 run
 
@@ -51,14 +51,16 @@ run
 and it will display the results as it computes them
 
 ```
-Solving problems with 3 men and 3 women with random preferences.
-Success rate for the first man (got first choice / total samples) :    849579/  1330450 = 63.856515%
+Solving problems with 500 men and 500 women with random preferences.
+Success rate for the first man (got first choice / total samples) and 95% confidence interval :
+   844   /  5658   = 14.90  ± 0.9  %
 ```
 
 ## Programmatic usage
 
 ### Implementation
-The GaleShapley struct represents the algorithm itself, and it has several methods that implement the different steps of the algorithm.
+
+The [`GaleShapley` struct](https://github.com/lovasoa/gale-shapley-rs/blob/main/src/lib.rs#L4-L15) represents the algorithm itself, and it has several methods that implement the different steps of the algorithm.
 The `init` method is used to initialize the data structures needed for the algorithm, such as the men and women preferences.
 The `find_stable_marriage` method runs the algorithm and returns the final stable marriage.
 
@@ -66,7 +68,7 @@ The `find_stable_marriage` method runs the algorithm and returns the final stabl
 
 ```rs
 let men_preferences = vec![vec![0, 1], vec![0, 1]]; // both men prefer woman 0
-let women_preferences = vec![vec![1, 0], vec![1, 0]]; // both women prefer man 1
+let women_preferences = vec![vec![0, 1], vec![1, 0]]; // woman 0 prefers man 0, woman 1 prefers man 1
         
 let stable_marriages: Vec<(Man, Woman)> = GaleShapley::init(men_preferences, women_preferences)
             .find_stable_marriage()

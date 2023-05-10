@@ -1,6 +1,6 @@
-use galeshapley::{GaleShapley, Man, Woman};
+use galeshapley::{GaleShapley, Stats, Man, Woman};
 
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 #[derive(PartialEq, Debug)]
 pub struct PrefWithNames {
@@ -114,13 +114,37 @@ fn run_random(n: usize) {
         let rate = got_first_choice as f64 / total_tries as f64;
         let confidence = 100. * 1.96 * (rate * (1. - rate) / total_tries as f64).sqrt();
         let percentage = 100. * rate;
-        print!("\r{got_first_choice:^9}/{total_tries:^9} = {percentage:^6.2} ± {confidence:^4.1} %\r")
+        print!(
+            "\r{got_first_choice:^9}/{total_tries:^9} = {percentage:^6.2} ± {confidence:^4.1} %\r"
+        )
     }
+}
+
+fn run_stats(n: usize) -> Stats {
+    let stats = Stats::new(n);
+    std::thread::scope(|scope| {
+        for _ in 0..8 {
+            scope.spawn(|| {
+                for _ in 0..10 {
+                    let pb = GaleShapley::init_random(n);
+                    stats.add_problem(pb);
+                }
+            });
+        }
+    });
+    stats
 }
 
 fn main() {
     let argv: Vec<String> = std::env::args().collect();
-    if argv.len() == 2 {
+    if argv.get(1) == Some(&"stats".to_string()) {
+        let n: usize = argv[2].parse().expect("invalid number");
+        let stats = run_stats(n);
+        println!("rank,men,women");
+        for i in 0..n {
+            println!("{},{:?},{:?}", i + 1, stats.men[i], stats.women[i]);
+        }
+    } else if argv.len() == 2 {
         let n: usize = argv[1].parse().expect("invalid number");
         run_random(n)
     } else {

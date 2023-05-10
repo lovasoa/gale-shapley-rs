@@ -40,6 +40,32 @@ Jack: Isabelle
 
 ### Compute statistics
 
+### Mariage distribution
+
+Compute the number of men who got their nth preferred woman and the number of women who got their nth preferred 
+man, in parallel.
+
+run
+
+```
+./galeshapley stats 4
+```
+
+this will return 
+
+```
+rank,men,women
+1,183,128
+2,82,93
+3,38,51
+4,17,48
+```
+
+This means that after multiple runs, 183 men and 128 women got their preferred choice,
+82 men and 93 women got their second choice, etc.
+
+### probability of a man to gets his first choice as a stable mariage
+
 Computes the probability of a man to gets his first choice as a stable mariage in a problem of N men and N women.
 
 run

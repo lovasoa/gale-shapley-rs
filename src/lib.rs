@@ -1,3 +1,5 @@
+use std::sync::atomic::AtomicUsize;
+
 pub type Man = usize;
 pub type Woman = usize;
 
@@ -23,7 +25,7 @@ impl GaleShapley {
         GaleShapley {
             free_men: (0..num_men).rev().collect(),
             men_preferences: make_men_preferences(men_preferences),
-            women_preferences: make_women_preferences(women_preferences),
+            women_preferences: make_rank_matrix(women_preferences),
             women_engagement: vec![None; num_women],
         }
     }
@@ -58,7 +60,7 @@ impl GaleShapley {
     }
 
     /// Returns the man that w is engaged to
-    fn current_woman_engagement(&self, w: Woman) -> Option<Man> {
+    pub fn current_woman_engagement(&self, w: Woman) -> Option<Man> {
         self.women_engagement[w]
     }
 
@@ -121,6 +123,32 @@ impl GaleShapley {
         }
         was_engaged
     }
+
+    /// Reconstitute a matrix such that `men_rank_matrix[m][w]` is the rank of w in m's preferences
+    pub fn men_rank_matrix(&self) -> Vec<Vec<usize>> {
+        let n = self.size();
+        self.men_preferences
+            .iter()
+            .map(|line| {
+                assert_eq!(line.len(), n, "problem already solved, preferences lost");
+                let mut rank = vec![0; line.len()];
+                for (i, w) in line.iter().enumerate() {
+                    rank[*w] = n - i - 1;
+                }
+                rank
+            })
+            .collect()
+    }
+
+    /// `women_preferences[w][m]` is the rank of m in w's preferences
+    pub fn women_preferences(&self) -> &Vec<Vec<usize>> {
+        &self.women_preferences
+    }
+
+    /// Number of men and women
+    pub fn size(&self) -> usize {
+        self.men_preferences.len()
+    }
 }
 
 /// men_preferences[m][N-i] is the ith prefered woman of m
@@ -133,8 +161,10 @@ fn make_men_preferences(mut p: Vec<Vec<Woman>>) -> Vec<Vec<Woman>> {
     p
 }
 
-/// women_preferences[w][m] is the rank of m in w's preferences
-fn make_women_preferences(mut p: Vec<Vec<Man>>) -> Vec<Vec<usize>> {
+/// Takes a preference matrix and returns a rank matrix
+/// takes a matrix M where M[w][i] is the man at rank i in w's preferences
+/// and returns the T such as T[w][m] is the rank of m in w's preferences
+pub fn make_rank_matrix(mut p: Vec<Vec<Man>>) -> Vec<Vec<usize>> {
     let len = p.len();
     for line in &mut p {
         assert_eq!(line.len(), len);
@@ -150,6 +180,35 @@ fn rand_pref_matrix(n: usize) -> Vec<Vec<usize>> {
     (0..n)
         .map(|_| rand::seq::index::sample(&mut rng, n, n).into_vec())
         .collect()
+}
+
+pub struct Stats {
+    // Number of times men got their Nth choice
+    pub men: Vec<AtomicUsize>,
+    // Number of times women got their Nth choice
+    pub women: Vec<AtomicUsize>,
+}
+
+impl Stats {
+    pub fn new(size: usize) -> Self {
+        Self {
+            men: (0..size).map(|_| AtomicUsize::new(0)).collect(),
+            women: (0..size).map(|_| AtomicUsize::new(0)).collect(),
+        }
+    }
+    pub fn add_problem(&self, mut pb: GaleShapley) {
+        let men_preference_ranks = pb.men_rank_matrix();
+        let _ = pb.find_stable_marriage();
+        for w in 0..pb.size() {
+            let m = pb
+                .current_woman_engagement(w)
+                .expect("problem should be solved");
+            let m_rank = pb.women_preferences()[w][m];
+            let w_rank = men_preference_ranks[m][w];
+            self.women[m_rank].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            self.men[w_rank].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -190,7 +249,7 @@ mod tests {
     #[test]
     fn test_make_women_preferences() {
         assert_eq!(
-            make_women_preferences(vec![vec![0, 2, 1], vec![2, 1, 0], vec![2, 0, 1]]),
+            make_rank_matrix(vec![vec![0, 2, 1], vec![2, 1, 0], vec![2, 0, 1]]),
             [[0, 2, 1], [2, 1, 0], [1, 2, 0]]
         )
     }
@@ -231,12 +290,15 @@ mod tests {
     }
 
     #[test]
-    fn all_stable_marriage_with_2x2() {
+    fn stats() {
         let men_preferences = || vec![vec![0, 1], vec![0, 1]]; // both men prefer the first woman
         let women_preferences = || vec![vec![1, 0], vec![1, 0]]; // both women prefer the second man
-        assert!(
-            !GaleShapley::init(men_preferences(), women_preferences())
-                .has_stable_mariage_with(0, 0) // first man does not mary first woman
-        );
+        let stats = Stats::new(2);
+        stats.add_problem(GaleShapley::init(men_preferences(), women_preferences()));
+        let o = std::sync::atomic::Ordering::Acquire;
+        assert_eq!(stats.men[0].load(o), 1); // 1 man got his first choice (the second man)
+        assert_eq!(stats.men[1].load(o), 1); // 1 man got his second choice (the first man got the second woman)
+        assert_eq!(stats.women[0].load(o), 1);
+        assert_eq!(stats.women[1].load(o), 1);
     }
 }

@@ -1,6 +1,9 @@
 use galeshapley::{GaleShapley, Man, Stats, Woman};
 
-use std::{collections::{HashMap, HashSet}, sync::mpsc::Receiver};
+use std::{
+    collections::{HashMap, HashSet},
+    sync::mpsc::Receiver,
+};
 
 #[derive(PartialEq, Debug)]
 pub struct PrefWithNames {
@@ -248,24 +251,21 @@ fn all_possible_preferences(
     p
 }
 
-/// Recursive function that returns an iterator over all possible orderings of `size` elements.
-fn all_possible_individual_preferences(size: usize) -> Box<dyn Iterator<Item = Vec<usize>>> {
-    all_possible_individual_preferences_with_prefix(size, Vec::with_capacity(size))
-}
-
-fn all_possible_individual_preferences_with_prefix(size: usize, prefix: Vec<usize>) -> Box<dyn Iterator<Item = Vec<usize>>> {
-    if prefix.len() == size {
-        return Box::new(std::iter::once(prefix));
-    }
-    let in_prefix: HashSet<usize>  = HashSet::from_iter(prefix.iter().cloned());
-    Box::new(
-        (0..size).filter(move |i| !in_prefix.contains(i)).flat_map(move |i| {
-            let mut new_prefix = Vec::with_capacity(prefix.capacity());
-            new_prefix.extend_from_slice(&prefix);
+fn all_possible_individual_preferences(size: usize) -> impl Iterator<Item = Vec<usize>> {
+    let mut prefixes = vec![vec![]];
+    std::iter::from_fn(move || loop {
+        let prefix = prefixes.pop()?;
+        if prefix.len() == size {
+            return Some(prefix);
+        }
+        let in_prefix: HashSet<usize> = HashSet::from_iter(prefix.iter().copied());
+        let ends = (0..size).rev().filter(move |i| !in_prefix.contains(i));
+        prefixes.extend(ends.map(move |i| {
+            let mut new_prefix = prefix.clone();
             new_prefix.push(i);
-            all_possible_individual_preferences_with_prefix(size, new_prefix)
-        }),
-    )
+            new_prefix
+        }));
+    })
 }
 
 #[test]

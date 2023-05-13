@@ -82,6 +82,26 @@ Success rate for the first man (got first choice / total samples) and 95% confid
    844   /  5658   = 14.90  ± 0.9  %
 ```
 
+## Solve all problems of a given size
+
+```
+./galeshapley all 2
+```
+
+This returns 
+
+```csv
+man_1_preference_1,man_1_preference_2,man_2_preference_1,man_2_preference_2,woman_1_preference_1,woman_1_preference_2,woman_2_preference_1,woman_2_preference_2,woman_1_mariage,woman_2_mariage,
+0,1,1,0,1,0,1,0,0,1,
+0,1,1,0,1,0,0,1,0,1,
+0,1,1,0,0,1,1,0,0,1,
+0,1,1,0,0,1,0,1,0,1,
+0,1,0,1,1,0,1,0,1,0,
+0,1,0,1,1,0,0,1,1,0,
+0,1,0,1,0,1,1,0,0,1,
+0,1,0,1,0,1,0,1,0,1,
+```
+
 ## Programmatic usage
 
 ### Implementation

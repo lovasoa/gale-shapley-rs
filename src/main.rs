@@ -1,6 +1,6 @@
 use galeshapley::{GaleShapley, Man, Stats, Woman};
 
-use std::{collections::HashMap, sync::mpsc::Receiver};
+use std::{collections::{HashMap, HashSet}, sync::mpsc::Receiver};
 
 #[derive(PartialEq, Debug)]
 pub struct PrefWithNames {
@@ -173,17 +173,17 @@ fn print_all_problems(size: usize) {
     for r in solve_all_problems(size) {
         for i in 0..size {
             for j in 0..size {
-                print!("{},", r.men_preferences[i][j]);
+                print!("{},", r.men_preferences[i][j] + 1);
             }
         }
         for i in 0..size {
             for j in 0..size {
-                print!("{},", r.women_preferences[i][j]);
+                print!("{},", r.women_preferences[i][j] + 1);
             }
         }
         for (i, &(m, w)) in r.mariages.iter().enumerate() {
             assert_eq!(i, w);
-            print!("{},", m);
+            print!("{},", m + 1);
         }
         println!();
     }
@@ -250,26 +250,27 @@ fn all_possible_preferences(
 
 /// Recursive function that returns an iterator over all possible orderings of `size` elements.
 fn all_possible_individual_preferences(size: usize) -> Box<dyn Iterator<Item = Vec<usize>>> {
-    if size == 0 {
-        return Box::new(std::iter::once(vec![]));
+    all_possible_individual_preferences_with_prefix(size, Vec::with_capacity(size))
+}
+
+fn all_possible_individual_preferences_with_prefix(size: usize, prefix: Vec<usize>) -> Box<dyn Iterator<Item = Vec<usize>>> {
+    if prefix.len() == size {
+        return Box::new(std::iter::once(prefix));
     }
+    let in_prefix: HashSet<usize>  = HashSet::from_iter(prefix.iter().cloned());
     Box::new(
-        all_possible_individual_preferences(size - 1).flat_map(move |v| {
-            (0..size).map(move |i| {
-                let mut new_v = Vec::with_capacity(size);
-                new_v.extend_from_slice(&v[..i]);
-                new_v.push(size - 1);
-                new_v.extend_from_slice(&v[i..]);
-                new_v
-            })
+        (0..size).filter(move |i| !in_prefix.contains(i)).flat_map(move |i| {
+            let mut new_prefix = Vec::with_capacity(prefix.capacity());
+            new_prefix.extend_from_slice(&prefix);
+            new_prefix.push(i);
+            all_possible_individual_preferences_with_prefix(size, new_prefix)
         }),
     )
 }
 
 #[test]
 fn test_all_possible() {
-    let mut all = all_possible_individual_preferences(3).collect::<Vec<_>>();
-    all.sort();
+    let all = all_possible_individual_preferences(3).collect::<Vec<_>>();
     assert_eq!(
         all,
         vec![
@@ -285,8 +286,7 @@ fn test_all_possible() {
 
 #[test]
 fn test_all_possible_aggregated_preferences() {
-    let mut all = all_possible_preferences(2, false).collect::<Vec<_>>();
-    all.sort();
+    let all = all_possible_preferences(2, false).collect::<Vec<_>>();
     assert_eq!(
         all,
         vec![
